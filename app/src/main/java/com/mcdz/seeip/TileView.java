@@ -16,29 +16,28 @@ import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 
 public class TileView extends TileService {
+    Tile tile;
+    boolean sw = true;
 
     @Override
     public void onClick() {
         super.onClick();
+        sw = !sw;
         displayIp();
     }
-
-    Tile tile;
-    boolean sw = true;
 
     @Override
     public void onStartListening() {
         tile = getQsTile();
         tile.setIcon(Icon.createWithResource(this,
                 R.mipmap.ic_ip3));
-        tile.setLabel(getString(R.string.tile_name));
+        tile.setLabel(getString(R.string.tile_fetching_text));
         tile.setState(Tile.STATE_INACTIVE);
         tile.updateTile();
     }
 
     // will be cleaning up this method soon
     public void displayIp() {
-        sw = !sw;
         if (sw) {
             if (!getLocalWifiIpAddress().equals("0.0.0.0")) {
                 getQsTile().setLabel(getLocalWifiIpAddress());
@@ -79,6 +78,12 @@ public class TileView extends TileService {
                             getQsTile().updateTile();
                         }
                         getQsTile().updateTile();   // unnecessary.
+                    } catch (NullPointerException e) {
+                        getQsTile().setLabel("No Network");
+                        tile.setIcon(Icon.createWithResource(TileView.this,
+                                R.mipmap.ic_nonet));
+                        tile.setState(Tile.STATE_INACTIVE);
+                        getQsTile().updateTile();
                     } catch (Exception e) {
                         e.printStackTrace();
                         tile.setIcon(Icon.createWithResource(TileView.this,
@@ -96,8 +101,12 @@ public class TileView extends TileService {
     // found this on web
     private String getLocalWifiIpAddress() {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-        assert wifiManager != null;
-        int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+        int ipAddress;
+        if (wifiManager != null) {
+            ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+        }else{
+            return "0.0.0.0";
+        }
 
         if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
             ipAddress = Integer.reverseBytes(ipAddress);
@@ -109,7 +118,7 @@ public class TileView extends TileService {
         try {
             ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
         } catch (UnknownHostException ex) {
-            ipAddressString = null;
+            return "0.0.0.0";
         }
         try {
             return ipAddressString;
@@ -125,9 +134,12 @@ public class TileView extends TileService {
         String str;
         BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
         str = reader.readLine();
+        try {
+            return str;
+        }catch (NullPointerException e){
+            return "null";
+        }
 
-
-        return str;
     }
 
 }
