@@ -5,7 +5,6 @@ import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
 import android.net.wifi.WifiManager;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
