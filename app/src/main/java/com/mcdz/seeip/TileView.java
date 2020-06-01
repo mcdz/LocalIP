@@ -1,23 +1,16 @@
 package com.mcdz.seeip;
 
 import android.graphics.drawable.Icon;
-import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
 import android.net.wifi.WifiManager;
-import android.content.Context;
-import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 
-
-@RequiresApi(api = Build.VERSION_CODES.N)
 public class TileView extends TileService {
 
     @Override
@@ -27,7 +20,6 @@ public class TileView extends TileService {
     }
 
     Tile tile;
-    Icon icon;
 
     @Override
     public void onStartListening() {
@@ -40,12 +32,13 @@ public class TileView extends TileService {
     }
 
     public void displayIp() {
+        // will be playing with active/inactive later, it's pointless for now.
         getQsTile().setLabel(getLocalWifiIpAddress());
-//        toastMessage(getLocalWifiIpAddress());
         getQsTile().updateTile();
     }
 
 
+    // found this on web
     private String getLocalWifiIpAddress() {
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         assert wifiManager != null;
@@ -65,9 +58,5 @@ public class TileView extends TileService {
         }
 
         return ipAddressString;
-    }
-
-    public void toastMessage(String str) {
-        Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
     }
 }
