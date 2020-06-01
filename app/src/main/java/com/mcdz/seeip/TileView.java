@@ -41,7 +41,6 @@ public class TileView extends TileService {
     boolean sw;
 
     public void displayIp() {
-        // will be playing with active/inactive later, it's pointless for now.
         sw = !sw;
         if (sw) {
             getQsTile().setLabel(getLocalWifiIpAddress());
@@ -49,6 +48,8 @@ public class TileView extends TileService {
         } else {
             tile.setIcon(Icon.createWithResource(this,
                     R.mipmap.ic_public));
+            getQsTile().updateTile();
+
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -92,11 +93,11 @@ public class TileView extends TileService {
         return ipAddressString;
     }
 
-    public String getPublicIpAddress() throws MalformedURLException, IOException {
+    public String getPublicIpAddress() throws IOException {
 
         URL connection = new URL("http://checkip.amazonaws.com/");
         URLConnection con = connection.openConnection();
-        String str = null;
+        String str;
         BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
         str = reader.readLine();
 
