@@ -1,5 +1,6 @@
 package com.mcdz.seeip;
 
+import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
@@ -38,32 +39,58 @@ public class TileView extends TileService {
         tile.updateTile();
     }
 
-    boolean sw;
+    /*
+        @Override
+        public void onStopListening() {
+            super.onStopListening();
+            tile.setLabel(getString(R.string.tile_name));
+            tile.setIcon(Icon.createWithResource(this,
+                    R.mipmap.ic_ip3));
+            tile.setState(Tile.STATE_INACTIVE);
+            tile.updateTile();
+        }
+    */
+
+    boolean sw = true;
 
     public void displayIp() {
         sw = !sw;
         if (sw) {
-            getQsTile().setLabel(getLocalWifiIpAddress());
+            if(!getLocalWifiIpAddress().equals(""))
+                getQsTile().setLabel(getLocalWifiIpAddress());
+            else
+                getQsTile().setLabel("0.0.0.0");
+
             getQsTile().updateTile();
         } else {
             tile.setIcon(Icon.createWithResource(this,
                     R.mipmap.ic_public));
             getQsTile().updateTile();
+            tile.setState(Tile.STATE_ACTIVE);
 
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    getQsTile().setLabel("Public…");
+                    getQsTile().updateTile();
+
                     try {
                         try {
                             getQsTile().setLabel(getPublicIpAddress());
+                            tile.setState(Tile.STATE_INACTIVE);
+                            getQsTile().updateTile();
                         } catch (IOException e) {
                             e.printStackTrace();
-                            getQsTile().setLabel("Error");
+                            getQsTile().setLabel("No Network");
+                            tile.setState(Tile.STATE_INACTIVE);
+                            getQsTile().updateTile();
                         }
-                        getQsTile().updateTile();
+                        getQsTile().updateTile();   // unnecessary.
                     } catch (Exception e) {
                         e.printStackTrace();
                         getQsTile().setLabel("Error");
+                        tile.setState(Tile.STATE_INACTIVE);
+                        getQsTile().updateTile();
                     }
                 }
             });
