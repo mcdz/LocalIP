@@ -1,10 +1,8 @@
 package com.mcdz.seeip;
 
-import android.content.Intent;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
-
 import android.net.wifi.WifiManager;
 
 import java.io.BufferedReader;
@@ -12,12 +10,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
-
 
 public class TileView extends TileService {
 
@@ -56,7 +52,7 @@ public class TileView extends TileService {
     public void displayIp() {
         sw = !sw;
         if (sw) {
-            if(!getLocalWifiIpAddress().equals(""))
+            if (!getLocalWifiIpAddress().equals(""))
                 getQsTile().setLabel(getLocalWifiIpAddress());
             else
                 getQsTile().setLabel("0.0.0.0");
