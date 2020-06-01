@@ -3,6 +3,7 @@
     package="com.mcdz.seeip"
     android:installLocation="auto">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
@@ -10,6 +11,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
         android:supportsRtl="true">
         <service
             android:name=".TileView"

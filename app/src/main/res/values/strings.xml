@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Local IP</string>
-    <string name="tile_name">SeeIP</string>
+    <string name="tile_name">Fetching</string>
 </resources>

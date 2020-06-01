@@ -5,11 +5,19 @@ import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
 import android.net.wifi.WifiManager;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
+
 
 public class TileView extends TileService {
 
@@ -31,12 +39,35 @@ public class TileView extends TileService {
         tile.updateTile();
     }
 
+    boolean sw;
+
     public void displayIp() {
         // will be playing with active/inactive later, it's pointless for now.
-        getQsTile().setLabel(getLocalWifiIpAddress());
-        getQsTile().updateTile();
+        sw = !sw;
+        if (sw) {
+            getQsTile().setLabel(getLocalWifiIpAddress());
+            getQsTile().updateTile();
+        } else {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        try {
+                            getQsTile().setLabel(getPublicIpAddress());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            getQsTile().setLabel("Error");
+                        }
+                        getQsTile().updateTile();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        getQsTile().setLabel("Error");
+                    }
+                }
+            });
+            thread.start();
+        }
     }
-
 
     // found this on web
     private String getLocalWifiIpAddress() {
@@ -59,4 +90,17 @@ public class TileView extends TileService {
 
         return ipAddressString;
     }
+
+    public String getPublicIpAddress() throws MalformedURLException, IOException {
+
+        URL connection = new URL("http://checkip.amazonaws.com/");
+        URLConnection con = connection.openConnection();
+        String str = null;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        str = reader.readLine();
+
+
+        return str;
+    }
+
 }
