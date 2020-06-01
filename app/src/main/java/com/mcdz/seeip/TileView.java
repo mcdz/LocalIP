@@ -48,6 +48,8 @@ public class TileView extends TileService {
             getQsTile().setLabel(getLocalWifiIpAddress());
             getQsTile().updateTile();
         } else {
+            tile.setIcon(Icon.createWithResource(this,
+                    R.mipmap.ic_public));
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
