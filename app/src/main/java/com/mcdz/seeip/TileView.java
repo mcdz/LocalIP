@@ -24,6 +24,7 @@ public class TileView extends TileService {
     }
 
     Tile tile;
+    boolean sw = true;
 
     @Override
     public void onStartListening() {
@@ -35,55 +36,53 @@ public class TileView extends TileService {
         tile.updateTile();
     }
 
-    /*
-        @Override
-        public void onStopListening() {
-            super.onStopListening();
-            tile.setLabel(getString(R.string.tile_name));
-            tile.setIcon(Icon.createWithResource(this,
-                    R.mipmap.ic_ip3));
-            tile.setState(Tile.STATE_INACTIVE);
-            tile.updateTile();
-        }
-    */
-
-    boolean sw = true;
-
+    // will be cleaning up this method soon
     public void displayIp() {
         sw = !sw;
         if (sw) {
-            if (!getLocalWifiIpAddress().equals(""))
+            if (!getLocalWifiIpAddress().equals("0.0.0.0")) {
                 getQsTile().setLabel(getLocalWifiIpAddress());
-            else
+                getQsTile().setIcon(Icon.createWithResource(this,
+                        R.mipmap.ic_ip3));
+            } else {
                 getQsTile().setLabel("0.0.0.0");
-
+                getQsTile().setIcon(Icon.createWithResource(this,
+                        R.mipmap.ic_nonet));
+            }
             getQsTile().updateTile();
         } else {
             tile.setIcon(Icon.createWithResource(this,
-                    R.mipmap.ic_public));
+                    R.mipmap.ic_wait));
+            tile.setState(Tile.STATE_INACTIVE);
             getQsTile().updateTile();
-            tile.setState(Tile.STATE_ACTIVE);
 
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     getQsTile().setLabel("Public…");
+                    tile.setIcon(Icon.createWithResource(TileView.this,
+                            R.mipmap.ic_wait));
                     getQsTile().updateTile();
-
                     try {
                         try {
                             getQsTile().setLabel(getPublicIpAddress());
-                            tile.setState(Tile.STATE_INACTIVE);
+                            tile.setIcon(Icon.createWithResource(TileView.this,
+                                    R.mipmap.ic_web));
+                            tile.setState(Tile.STATE_ACTIVE);
                             getQsTile().updateTile();
                         } catch (IOException e) {
                             e.printStackTrace();
                             getQsTile().setLabel("No Network");
+                            tile.setIcon(Icon.createWithResource(TileView.this,
+                                    R.mipmap.ic_nonet));
                             tile.setState(Tile.STATE_INACTIVE);
                             getQsTile().updateTile();
                         }
                         getQsTile().updateTile();   // unnecessary.
                     } catch (Exception e) {
                         e.printStackTrace();
+                        tile.setIcon(Icon.createWithResource(TileView.this,
+                                R.mipmap.ic_error));
                         getQsTile().setLabel("Error");
                         tile.setState(Tile.STATE_INACTIVE);
                         getQsTile().updateTile();
@@ -112,8 +111,11 @@ public class TileView extends TileService {
         } catch (UnknownHostException ex) {
             ipAddressString = null;
         }
-
-        return ipAddressString;
+        try {
+            return ipAddressString;
+        } catch (NullPointerException e) {
+            return "0.0.0.0";
+        }
     }
 
     public String getPublicIpAddress() throws IOException {
