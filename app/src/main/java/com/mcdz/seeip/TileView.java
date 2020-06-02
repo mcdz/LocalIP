@@ -1,6 +1,7 @@
 package com.mcdz.seeip;
 
 import android.graphics.drawable.Icon;
+import android.os.Handler;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.net.wifi.WifiManager;
@@ -16,14 +17,15 @@ import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 
 public class TileView extends TileService {
+
     Tile tile;
     boolean sw = true;
 
     @Override
     public void onClick() {
         super.onClick();
-        sw = !sw;
         displayIp();
+        sw = !sw;
     }
 
     @Override
@@ -39,35 +41,47 @@ public class TileView extends TileService {
     // will be cleaning up this method soon
     public void displayIp() {
         if (sw) {
-            if (!getLocalWifiIpAddress().equals("0.0.0.0")) {
-                getQsTile().setLabel(getLocalWifiIpAddress());
-                getQsTile().setIcon(Icon.createWithResource(this,
-                        R.mipmap.ic_ip3));
-            } else {
-                getQsTile().setLabel("0.0.0.0");
-                getQsTile().setIcon(Icon.createWithResource(this,
-                        R.mipmap.ic_nonet));
-            }
+            tile.setIcon(Icon.createWithResource(TileView.this,
+                    R.mipmap.ic_web));
+            tile.setLabel("Local..");
+            tile.setState(Tile.STATE_ACTIVE);
             getQsTile().updateTile();
+            new Thread(new Runnable() {
+                public void run() {
+                    android.os.SystemClock.sleep(200);
+                    if (!getLocalWifiIpAddress().equals("0.0.0.0")) {
+                        getQsTile().setLabel(getLocalWifiIpAddress());
+                        getQsTile().setIcon(Icon.createWithResource(TileView.this,
+                                R.mipmap.ic_ip3));
+                    } else {
+                        getQsTile().setLabel("0.0.0.0");
+                        getQsTile().setIcon(Icon.createWithResource(TileView.this,
+                                R.mipmap.ic_nonet));
+                    }
+                    tile.setState(Tile.STATE_INACTIVE);
+                    getQsTile().updateTile();
+                }
+            }).start();
         } else {
             tile.setIcon(Icon.createWithResource(this,
                     R.mipmap.ic_wait));
             tile.setState(Tile.STATE_INACTIVE);
             getQsTile().updateTile();
-
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     getQsTile().setLabel("Public…");
                     tile.setIcon(Icon.createWithResource(TileView.this,
-                            R.mipmap.ic_wait));
+                            R.mipmap.ic_ip3));
+                    tile.setState(Tile.STATE_ACTIVE);
+
                     getQsTile().updateTile();
                     try {
                         try {
                             getQsTile().setLabel(getPublicIpAddress());
                             tile.setIcon(Icon.createWithResource(TileView.this,
                                     R.mipmap.ic_web));
-                            tile.setState(Tile.STATE_ACTIVE);
+                            tile.setState(Tile.STATE_INACTIVE);
                             getQsTile().updateTile();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -104,7 +118,7 @@ public class TileView extends TileService {
         int ipAddress;
         if (wifiManager != null) {
             ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-        }else{
+        } else {
             return "0.0.0.0";
         }
 
@@ -136,7 +150,7 @@ public class TileView extends TileService {
         str = reader.readLine();
         try {
             return str;
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             return "null";
         }
 
