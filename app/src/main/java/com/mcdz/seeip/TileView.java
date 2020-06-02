@@ -48,7 +48,7 @@ public class TileView extends TileService {
             getQsTile().updateTile();
             new Thread(new Runnable() {
                 public void run() {
-                    android.os.SystemClock.sleep(200);
+                    android.os.SystemClock.sleep(240);
                     if (!getLocalWifiIpAddress().equals("0.0.0.0")) {
                         getQsTile().setLabel(getLocalWifiIpAddress());
                         getQsTile().setIcon(Icon.createWithResource(TileView.this,
